@@ -275,7 +275,7 @@ test('serves the responsive UI locally with a restrictive content security polic
     const styles = await (await fetch(`${origin}/styles.css`)).text();
     assert.match(styles, /max-width: 760px/);
     assert.match(styles, /max-width: 380px/);
-    assert.equal(styles.includes('fonts.googleapis.com'), false);
+    assert.doesNotMatch(styles, /url\s*\(/i);
   });
 });
 
