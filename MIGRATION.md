@@ -56,12 +56,54 @@ aplikacji źródłowej ani GUI; pełna migracja, pomiary hosta i weryfikacja
 integracji pozostają niedokończone.
 
 Weryfikacja w tym środowisku: Node.js `v22.23.4`; `npm test` — 6 testów
-Weryfikacja w tym środowisku: Node.js `v22.23.4`; `npm test` — 5 testów
 `npm start` potwierdził nasłuchiwanie na `127.0.0.1:3000`, odpowiedź
 `/api/ai/status` ze stanem `unreachable` oraz 404 dla `/`. Ollama nie
 nasłuchiwała pod `127.0.0.1:11434` (połączenie odrzucone). Nie uzyskano dostępu
 do prywatnego GitHub Codespace, więc testów ani zrzutów ekranu z Codespaces nie
 ma.
+
+## Audyt API czterech agentów — bloker — 2026-11-03
+
+Sprawdzono wskazane źródło `mmitek515-netizen/SVL_System` (`main`:
+`c334bee86708b104a1faa9e9be162bf0faab7d40`) przez `README.md`,
+`src/kernel/agents.ts`, `src/kernel/agentProtocol.ts`, `src/components/AgentCommsView.tsx`,
+`server.ts` i `.env.example`. `SYSTEM_AGENTS` i protokół identyfikują Alex,
+Astyria, Aria (`si_1`) i Aurelius jako role w aplikacji. README źródła mówi
+wprost, że nie są osobnymi usługami autonomicznymi ani workerami w tle.
+`AgentCommsView.tsx` jest częścią upstream GUI, ale nie została przeniesiona do
+tego repozytorium. Nie znaleziono pliku `LICENSE` w głównym katalogu źródła;
+nie skopiowano żadnego kodu upstream.
+`POST /api/triad/command` buduje deterministyczne odpowiedzi z lokalnego stanu
+jądra; `POST /api/triad/message` to lokalny czat Ollama/model. W źródle nie
+znaleziono kontraktu zdalnego API agentów, adresów usług, tokenów per agent,
+endpointu zlecania zadań do workerów ani rzeczywistych logów workerów.
+Konfiguracja `.env.example` dotyczy dostawców modeli, nie API czterech agentów.
+
+**Nie wdrożono statusów „online” ani wysyłania zadań do agentów.** Bez
+autorytatywnego adresu API, specyfikacji uwierzytelniania i poświadczeń
+pochodzących z zatwierdzonego źródła każda taka implementacja udawałaby
+łączność. Potrzebne od właściciela: dokumentacja i adres oryginalnego API,
+kontrakt zadań/logów, sposób bezpiecznego provisioningu tokenów oraz konta
+GitHub, na których wolno wykonywać dozwolone działania. Sekretów nie należy
+umieszczać w repozytorium ani zwracać z endpointu statusu.
+
+Nie przenosić obecnej obsługi GitHub ze źródła jako rozwiązania uwierzytelniania:
+audytowany kod zapisuje PAT w `.github_credentials.json` bez szyfrowania,
+konstruuje URL Git z tokenem i nasłuchuje na `0.0.0.0`. To wymaga osobnego
+przeglądu i naprawy przed jakimkolwiek użyciem; nie daje dowodu autoryzacji
+użytkownika. Nie rozszerzać uprawnień ani nie uruchamiać poleceń GitHub na
+niezweryfikowanych kontach.
+
+### Dowód worker/PR/CI oraz stan w Codespaces
+
+GitHub zgłasza PR #2 jako powiązany z Issue #1, a bieżący workflow Copilot
+„Addressing comment on PR #2” (run `41640850198`) wystartował dla SHA
+`93ceca4872f7e1f85a9406de23d09dabc4db521e`. Jest to dowód uruchomienia agenta
+Copilot dla PR, nie dowód uruchomienia któregokolwiek z czterech agentów
+źródłowych ani pełnego cyklu Issue→worker→PR→CI. Statusy PR dla tego SHA mają
+`pending`, `total_count: 0`; nie ma potwierdzonych check-runów projektu.
+Nie uzyskano dostępu do prywatnego GitHub Codespace. Ten cykl pozostaje
+nieweryfikowany; nie należy raportować go jako zaliczonego.
 
 ### Zakup — brak zatwierdzonej oferty
 
