@@ -1,6 +1,6 @@
 # Synchronizacja BastillaOS — plan i źródło
 
-**Status: przygotowanie; kod BastillaOS nie został jeszcze skopiowany.**
+**Status: przygotowanie; pełny kod BastillaOS nie został jeszcze skopiowany.**
 
 Źródło: `mmitek515-netizen/SVL_System`, gałąź `main`, Git tree `21e04fed96dd541d2e342db02143945ed7b8de94`.
 
@@ -104,6 +104,72 @@ Copilot dla PR, nie dowód uruchomienia któregokolwiek z czterech agentów
 `pending`, `total_count: 0`; nie ma potwierdzonych check-runów projektu.
 Nie uzyskano dostępu do prywatnego GitHub Codespace. Ten cykl pozostaje
 nieweryfikowany; nie należy raportować go jako zaliczonego.
+
+## Prywatność, minimalna aplikacja i bieżące braki — 2026-11-03
+
+GitHub API potwierdziło, że `mmitek515-netizen/Bastilla_OS_Ollama` ma
+widoczność `public`. Nie zmieniano ustawień repozytorium: wymagane jest
+zatwierdzenie właściciela, aby uczynić je prywatnym. Źródło
+`mmitek515-netizen/SVL_System` nie zawiera głównego pliku `LICENSE` w
+sprawdzonym tree; nie można ustalić prawa do kopiowania jego kodu. Nie
+przeniesiono żadnych plików źródłowych ani poufnej konfiguracji. Potencjalnie
+wrażliwy backend wykonujący operacje systemowe nie został skopiowany.
+
+Zamiast tego dodano niezależny szkielet z własnym GUI (`index.html`, `app.js`,
+`styles.css`) i providerem Ollama w `server.mjs`. Zmienne
+`OLLAMA_BASE_URL` i `OLLAMA_MODEL` są odczytywane wyłącznie przez serwer.
+Endpointy statusu nie ujawniają nazwy modelu ani adresu; provider wysyła
+ograniczoną historię bieżącej karty do lokalnego `/api/chat`, przekazuje
+NDJSON streaming, anuluje upstream przy rozłączeniu przeglądarki i powtarza
+tylko błąd `ECONNREFUSED` jeden raz. Interfejs nie wysyła telemetrii do
+zewnętrznych fontów/CDN. Serwer wiąże tylko `127.0.0.1`, weryfikuje lokalny
+Ollama URL, host i origin przeglądarki. Rozmowa nie jest zapisywana na serwerze.
+
+Aria, Alex, Astyria i Aurelius są widoczni jako oddzielne kanały
+`agent_disconnected`. Próba wysłania jest odrzucana; dziennik procesu zapisuje
+jedynie czas, agent, kod i `delivery: not_attempted` bez treści wiadomości.
+Kanał lokalnej Ollamy nie podszywa się pod żadną z tych tożsamości. Nie ma
+oryginalnego API agentów, zdalnego dispatchu, worker ID, trace ani historii
+agentów. Aplikacja nie daje modelowi dostępu do plików, shella, GitHub ani
+zakupów.
+
+### Bieżące sprawdzenie
+
+Środowisko tej sesji (nie prywatny Codespace): Node.js `v22.23.4`, 4 CPU,
+około 15 GiB RAM i 86 GiB wolnego dysku. Ollama nie jest zainstalowana ani
+nasłuchująca (`curl http://127.0.0.1:11434/api/tags` zwrócił połączenie
+odrzucone). Zgodnie z ograniczeniem właściciela nie instalowano jej tutaj i nie
+pobierano modelu. Rzeczywiste `curl -f /api/tags`, prompt do modelu, długa
+rozmowa z odpowiedzią modelu, restart/odzyskanie Ollamy i sprawdzenie
+przeglądarki w Codespaces nie zostały wykonane.
+
+Lokalnie na tej gałęzi: `node --check server.mjs app.js test/status.test.mjs`
+zaliczony; `npm test` zaliczył 15/15 testów, w tym provider/streaming na
+podstawionym HTTP, odmowę cross-origin i anulowanie aktywnego streamu. `npm run`
+pokazuje tylko `start` i `test` — nie ma skryptu build/lint. `npm start` na
+porcie 3187 nasłuchiwał na `127.0.0.1`; status rzeczywisty:
+`{"service":"unreachable","error":"Could not connect to Ollama at the configured local address.","model":{"configured":true,"status":"unknown"},"resources":{"status":"unknown"}}`.
+Próba z przeglądarki pokazała w UI „Ollama is not reachable…”, bez odpowiedzi
+modelu. UI było ręcznie otwarte w Playwright przy szerokościach 320, 360 i 412
+px; w każdej `document.documentElement.scrollWidth === innerWidth` (brak
+poziomego przepełnienia). Screenshot lokalnego UI (nie Codespaces) zapisano
+tymczasowo jako
+`/tmp/playwright-logs/page-2026-11-03T13-28-50-461Z.png`.
+Testy providerskie z podstawionymi odpowiedziami nie są dowodem działającego
+modelu.
+
+Weryfikacja odbiorcza nadal wymaga `npm start` z dostępną lokalną Ollamą oraz
+`OLLAMA_MODEL` zainstalowanym na tym hoście, prawdziwego wieloturowego promptu,
+restart/odzyskania usługi i ręcznego sprawdzenia interfejsu. Dodatkowo wymaga
+oryginalnego API agentów (obecnie brak). Bez tych warunków nie należy oznaczać
+integracji jako ukończonej.
+
+GitHub Actions dla wcześniejszego SHA pokazał zakończony sukcesem workflow
+Copilot Cloud Agent, którego logi opisują sesję agenta, nie testy aplikacji.
+Nie ma workflow build/test projektu; bieżący PR wymaga własnego CI po następnym
+commicie. Codespace nie jest dostępny z tej sesji.
+Repozytorium pozostaje publiczne do czasu decyzji właściciela; nie dodawać tu
+sekretów ani backendu z uprawnieniami root.
 
 ### Zakup — brak zatwierdzonej oferty
 

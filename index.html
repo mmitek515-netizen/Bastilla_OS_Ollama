@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101510">
+    <title>Bastilla · Local AI</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Bastilla local AI home">
+          <span class="brand-mark" aria-hidden="true">B</span>
+          <span>BASTILLA<span class="brand-sub">LOCAL AI CONSOLE</span></span>
+        </a>
+        <div class="local-badge"><span></span> PRIVATE · LOOPBACK ONLY</div>
+      </header>
+
+      <main>
+        <section class="intro">
+          <div>
+            <p class="eyebrow">YOUR LOCAL WORKSPACE</p>
+            <h1>Think clearly.<br><em>Stay in control.</em></h1>
+            <p class="intro-copy">A private chat powered by your local Ollama. No cloud API keys, no automatic tools, no elevated access.</p>
+          </div>
+          <div class="service-card" aria-live="polite">
+            <div class="service-title"><span id="service-dot" class="status-dot"></span><span id="service-label">Checking local Ollama…</span></div>
+            <p id="service-detail">Ollama runs separately on this machine.</p>
+            <button id="refresh-status" class="text-button" type="button">Refresh status</button>
+          </div>
+        </section>
+
+        <section class="workspace" aria-label="AI workspace">
+          <aside class="channels">
+            <div class="section-heading">
+              <span class="eyebrow">CHANNELS</span>
+              <span id="agent-count" class="count">Checking…</span>
+            </div>
+            <button class="channel active" type="button" data-channel="ollama" aria-pressed="true">
+              <span class="avatar ollama-avatar">O</span>
+              <span class="channel-copy"><strong>Local Ollama</strong><small>Private model chat</small></span>
+              <span class="channel-indicator" id="ollama-indicator"></span>
+            </button>
+            <div class="channel-divider"></div>
+            <p class="group-label">ORIGINAL AGENTS</p>
+            <button class="channel agent-channel" type="button" data-channel="Aria" aria-pressed="false">
+              <span class="avatar aria-avatar">A</span>
+              <span class="channel-copy"><strong>Aria</strong><small>Original agent · offline</small></span>
+              <span class="offline-dot"></span>
+            </button>
+            <button class="channel agent-channel" type="button" data-channel="Alex" aria-pressed="false">
+              <span class="avatar alex-avatar">A</span>
+              <span class="channel-copy"><strong>Alex</strong><small>Original agent · offline</small></span>
+              <span class="offline-dot"></span>
+            </button>
+            <button class="channel agent-channel" type="button" data-channel="Astyria" aria-pressed="false">
+              <span class="avatar astyria-avatar">A</span>
+              <span class="channel-copy"><strong>Astyria</strong><small>Original agent · offline</small></span>
+              <span class="offline-dot"></span>
+            </button>
+            <button class="channel agent-channel" type="button" data-channel="Aurelius" aria-pressed="false">
+              <span class="avatar aurelius-avatar">A</span>
+              <span class="channel-copy"><strong>Aurelius</strong><small>Original agent · offline</small></span>
+              <span class="offline-dot"></span>
+            </button>
+            <button class="channel all-channel" type="button" data-channel="all" aria-pressed="false">
+              <span class="avatar all-avatar">+</span>
+              <span class="channel-copy"><strong>All agents</strong><small>Send attempt is logged</small></span>
+              <span class="offline-dot"></span>
+            </button>
+            <div class="privacy-note">
+              <span class="privacy-icon" aria-hidden="true">⌑</span>
+              <p>Agent APIs are not configured. Messages to these channels are not sent or answered.</p>
+            </div>
+          </aside>
+
+          <section class="chat-panel" aria-label="Conversation">
+            <div class="chat-header">
+              <div>
+                <p class="eyebrow" id="chat-eyebrow">LOCAL MODEL</p>
+                <h2 id="chat-title">Local Ollama</h2>
+              </div>
+              <div class="chat-actions">
+                <span id="history-label">This tab · private history</span>
+                <button id="clear-chat" class="icon-button" type="button" aria-label="Clear conversation" title="Clear conversation">↺</button>
+              </div>
+            </div>
+            <div id="messages" class="messages" aria-live="polite" aria-relevant="additions text">
+              <div class="welcome-message">
+                <span class="welcome-mark" aria-hidden="true">✳</span>
+                <p class="eyebrow">A QUIETER KIND OF AI</p>
+                <h3>Start with a question.</h3>
+                <p>Your conversation stays in this tab and is sent only to your configured local Ollama.</p>
+                <div class="suggestions">
+                  <button type="button" class="suggestion">Help me think through an idea</button>
+                  <button type="button" class="suggestion">Summarize what we discussed</button>
+                </div>
+              </div>
+            </div>
+            <form id="chat-form" class="composer">
+              <label class="sr-only" for="message-input">Message local Ollama</label>
+              <textarea id="message-input" rows="2" maxlength="8000" placeholder="Ask your local model anything…" required></textarea>
+              <div class="composer-bottom">
+                <span id="composer-note">Enter to send · Shift + Enter for a new line</span>
+                <div class="composer-buttons">
+                  <button id="stop-button" class="stop-button" type="button" hidden>Stop</button>
+                  <button id="send-button" class="send-button" type="submit"><span>Send</span><span aria-hidden="true">↗</span></button>
+                </div>
+              </div>
+            </form>
+          </section>
+        </section>
+        <footer><span>BASTILLA LOCAL AI</span><span>No agent impersonation · No tools or privileged actions</span></footer>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
